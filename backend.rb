@@ -40,11 +40,13 @@ get '/recipes/:id' do |id|
     response = HTTParty.get('http://food2fork.com/api/get?key='+randomKey+'&rId='+id, {format: :json})
     recipe = response['recipe']
     # This maps the ingredients array into a JSONAPI friendly structure
+    # and gives each ingredient a unique id
     recipe['ingredients'] = recipe['ingredients'].each_with_index.map do |ingredient, index|
       {id: recipe['recipe_id'] + index.to_s, type: 'ingredient', attributes:{ name: ingredient} }
     end
-     settings.recipes.insert_one(recipe)
-     doc = recipe
+    # save recipe to db
+    settings.recipes.insert_one(recipe)
+    doc = recipe
   else
     doc = doc.to_a.first  
   end
